@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: quizapp-deploy
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: quizapp
@@ -12,35 +12,24 @@ spec:
       labels:
         app: quizapp
     spec:
-      securityContext:
-        fsGroup: 1000
-        runAsUser: 1000
       containers:
         - name: quizapp
           image: 241533146625.dkr.ecr.us-east-1.amazonaws.com/quizapp-flask:v1.0.4
-          command: ["/bin/sh"]
-          args:
-            - "-c"
-            - |
-              ls -l /app
-              ls -l /app/data
-              touch /app/data/testfile
-              exec python /app/app.py
           ports:
             - containerPort: 5000
-          envFrom:
-            - configMapRef:
-                name: quizapp-config
-            - secretRef:
-                name: quizapp-secret
-          # OPTIONAL: If your Flask app writes to /app/db or similar, use emptyDir
           volumeMounts:
-            - name: efs-storage
+            - name: sqlite-storage
               mountPath: /app/data
+          env:
+            - name: FLASK_ENV
+              value: "production"
+            - name: SQLALCHEMY_DATABASE_URI
+              value: "sqlite:////app/data/db.sqlite"
       volumes:
-        - name: efs-storage
+        - name: sqlite-storage
           persistentVolumeClaim:
-            claimName: efs-pvc
+            claimName: sqlite-pvc
+
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
