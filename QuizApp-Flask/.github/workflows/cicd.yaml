@@ -1,4 +1,4 @@
-name: CI/CD Pipeline for Flask Quiz App with AWS ECR
+name: CI/CD Pipeline for Flask Quiz App with AWS ECR # this is github action name
 
 on:
   push:
