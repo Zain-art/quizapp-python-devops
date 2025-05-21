@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: efs-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: efs-sc
+  resources:
+    requests:
+      storage: 5Gi
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: efs-pvc
+# spec:
+#   accessModes:
+#     - ReadWriteMany
+#   resources:
+#     requests:
+#       storage: 5Gi
+#   storageClassName: efs-sc
+# apiVersion: v1
+# kind: PersistentVolume
+# metadata:
+#   name: quizapp-pv
+# spec:
+#   capacity:
+#     storage: 1Gi
+#   accessModes:
+#     - ReadWriteOnce
+#   hostPath:
+#     path: /data/quizapp # This path will be on the EKS worker node
+#   persistentVolumeReclaimPolicy: Retain
+
+#   #########################
+# # apiVersion: v1
+# # kind: PersistentVolumeClaim
+# # metadata:
+# #   name: sqlite3-pvc
+# # spec:
+# #   accessModes:
+# #     - ReadWriteOnce
+# #   storageClassName: ebs-sc
+# #   resources:
+# #     requests:
+# #       storage: 1Gi

@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quizapp-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quizapp
+  template:
+    metadata:
+      labels:
+        app: quizapp
+    spec:
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+      containers:
+        - name: quizapp
+          image: 241533146625.dkr.ecr.us-east-1.amazonaws.com/quizapp-flask:v1.0.4
+          command: ["/bin/sh"]
+          args:
+            - "-c"
+            - |
+              ls -l /app
+              ls -l /app/data
+              touch /app/data/testfile
+              exec python /app/app.py
+          ports:
+            - containerPort: 5000
+          envFrom:
+            - configMapRef:
+                name: quizapp-config
+            - secretRef:
+                name: quizapp-secret
+          # OPTIONAL: If your Flask app writes to /app/db or similar, use emptyDir
+          volumeMounts:
+            - name: efs-storage
+              mountPath: /app/data
+      volumes:
+        - name: efs-storage
+          persistentVolumeClaim:
+            claimName: efs-pvc
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - quizapp
+                topologyKey: "kubernetes.io/hostname"

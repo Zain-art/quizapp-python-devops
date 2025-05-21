@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quizapp-deploy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: quizapp
+  template:
+    metadata:
+      labels:
+        app: quizapp
+    spec:
+      securityContext:
+        fsGroup: 1000
+      containers:
+        - name: quizapp
+          image: 241533146625.dkr.ecr.us-east-1.amazonaws.com/quizapp-flask:v1.0.4
+          ports:
+            - containerPort: 5000
+          envFrom:
+            - configMapRef:
+                name: quizapp-config
+            - secretRef:
+                name: quizapp-secret
+          volumeMounts:
+            - name: efs-storage
+              mountPath: /app/db
+      volumes:
+        - name: efs-storage
+          persistentVolumeClaim:
+            claimName: efs-pvc
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - quizapp
+                topologyKey: "kubernetes.io/hostname"
