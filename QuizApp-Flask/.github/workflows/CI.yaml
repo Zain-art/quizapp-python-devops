@@ -3,10 +3,10 @@ name: CI/CD Pipeline for Flask Quiz App with AWS ECR
 on:
   push:
     branches:
-      - 'main'  # Trigger on push to all branches
+      - main  # Trigger on push to all branches
   pull_request:
     branches:
-      - 'main'  # Also run for PRs
+      - main  # Also run for PRs
 
 jobs:
   build-and-deploy:
