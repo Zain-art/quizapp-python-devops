@@ -3,12 +3,7 @@ kind: ConfigMap
 metadata:
   name: quizapp-config
 data:
-  SQLALCHEMY_DATABASE_URI: sqlite:////app/db/db.sqlite
-# apiVersion: v1
-# kind: ConfigMap
-# metadata:
-#   name: quizapp-config
-# data:
-#   DB_USER: quiz_user
-#   DB_NAME: quizapp
-#   DB_HOST: mysql-service
+  MYSQL_HOST: mysql
+  MYSQL_PORT: "3306"
+  MYSQL_USER: quizuser
+  MYSQL_DATABASE: quizapp

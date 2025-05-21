@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: sqlite-config
-data:
-  DB_NAME: quiz.db
