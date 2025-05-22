@@ -745,9 +745,7 @@ spec:
     spec:
       containers:
         - name: quizapp
-
           image: 241533146625.dkr.ecr.us-east-1.amazonaws.com/quizapp-flask:main-58f4916
-
           ports:
             - containerPort: 5000
           volumeMounts:
@@ -762,7 +760,6 @@ spec:
         - name: sqlite-storage
           persistentVolumeClaim:
             claimName: sqlite-pvc
-
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -869,14 +866,12 @@ permissions:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
       # Step 1: Checkout the code from GitHub
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Required to get full git history for metadata
-
       # Step 2: Configure AWS credentials from GitHub Secrets
       - name: Configure AWS of my credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -884,24 +879,20 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-
       # Step 3: Log in to Amazon ECR using AWS credentials
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-
       # Step 4: Extract branch name and short commit SHA for Docker tag
       - name: Extract Git metadata
         id: git-meta
         run: |
           echo "branch_name=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
           echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-
       # Step 5: Display image tag in logs
       - name: Show Docker image tag
         run: |
           echo "Docker Image Tag: ${{ steps.git-meta.outputs.branch_name }}-${{ steps.git-meta.outputs.short_sha }}"
-
       # Step 6: Build and push Docker image to Amazon ECR
       - name: Build and push Docker image to Amazon ECR
         uses: docker/build-push-action@v4
@@ -910,13 +901,11 @@ jobs:
           file: ./QuizApp-Flask/Dockerfile
           push: true
           tags: ${{ secrets.ECR_REPOSITORY }}:${{ steps.git-meta.outputs.branch_name }}-${{ steps.git-meta.outputs.short_sha }}
-
       # Step 7: Update the Kubernetes deployment YAML with the new image tag
       - name: Update deployment manifest with new image tag
         run: |
           ls -l k8s-manifest/quiz-deployment.yaml 
           sed -i "s|image: .*|image: ${{ secrets.ECR_REPOSITORY }}:${{ steps.git-meta.outputs.branch_name }}-${{ steps.git-meta.outputs.short_sha }}|" k8s-manifest/quiz-deployment.yaml
-
       # Step 8: Commit and push the updated manifest to Git (triggers ArgoCD GitOps)
       - name: Commit updated manifest
         run: |
@@ -930,7 +919,6 @@ jobs:
             git commit -m "ci: update image to ${{ steps.git-meta.outputs.branch_name }}-${{ steps.git-meta.outputs.short_sha }}"
             git push https://x-access-token:${{ secrets.GT_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref_name }}
           fi
-
       # Step 9: Manually trigger ArgoCD sync (if auto-sync is disabled)
       # - name: Sync ArgoCD application
       #   env:
@@ -948,10 +936,8 @@ jobs:
   - Auto-sync and deploy updated images on each commit
 
 ```
-ubectl create namespace argocd
+kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-
-
  kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
 argocd login localhost:8080 --username admin --password admin123
 argocd account generate-token --account admin
