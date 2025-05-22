@@ -12,5 +12,9 @@
 - Infrastructure provisioning using Terraform
 - CI/CD implementation using GitHub Actions
 - Deployment using Argo CD on AWS EKS
-  
+
+### Intended Audience
+- DevOps Engineer
+- Experience: Intermediate with AWS, Docker, Kubernetes, and CI/CD tools
+
 
