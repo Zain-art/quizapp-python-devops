@@ -9,9 +9,11 @@
 - Docker image pushed to AWS ECR and deployed using Argo CD with auto-sync enabled
 
 ### Scope
-- Infrastructure provisioning using Terraform
-- CI/CD implementation using GitHub Actions
-- Deployment using Argo CD on AWS EK
+This documentation focuses on setting up a complete DevOps pipeline in AWS:
+
+- Covered: Networking, Kubernetes with EKS, Docker, CI/CD using GitHub Actions and Argo CD, Terraform modules
+
+- Not Covered: Flask application development in-depth, Kubernetes performance tuning, Cost optimization
 
 ### Intended Audience
 - DevOps Engineer
