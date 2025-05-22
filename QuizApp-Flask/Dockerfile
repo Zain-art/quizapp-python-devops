@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y build-essential gcc && \
 # Copy requirements and install packages
 COPY requirements.txt .
 RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
@@ -25,7 +25,7 @@ WORKDIR /app
 # Copy dependencies and code from builder
 
 COPY --from=builder /app /app
-
+RUN mkdir -p /app/data
 # Ensure the installed packages are found
 ENV PATH=/root/.local/bin:$PATH
 
