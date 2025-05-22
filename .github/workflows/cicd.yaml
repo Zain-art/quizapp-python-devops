@@ -51,7 +51,7 @@ jobs:
       - name: Build and push Docker image to Amazon ECR
         uses: docker/build-push-action@v4
         with:
-          context: .
+          context: ./QuizApp-Flask
           file: ./QuizApp-Flask/Dockerfile
           push: true
           tags: ${{ secrets.ECR_REPOSITORY }}:${{ steps.git-meta.outputs.branch_name }}-${{ steps.git-meta.outputs.short_sha }}
