@@ -988,8 +988,22 @@ resource "aws_dynamodb_table" "tf_locks" {
 ### Additional Topics:
 #### What is terraform taint?
   The terraform taint command marks a resource for destruction and recreation during the next terraform apply.
+#### What is the kubernetes.io/cluster/<cluster-name> tag?
+ “This subnet is allowed to be used by the EKS cluster named <cluster-name>.
+ It’s required by EKS and the AWS Load Balancer Controller (or default service-controller) to determine which subnets to use when 
+ provisioning:
 
+ LoadBalancers
 
+ NodeGroups
 
+ ENIs (Elastic Network Interfaces)
+- Minimum Required Tags for LoadBalancer Support:
+  1  For public subnets:
+"kubernetes.io/role/elb"                      = "1"
+"kubernetes.io/cluster/final-eks-cluster"     = "shared"
+2 For private subnets:
+  "kubernetes.io/role/internal-elb"             = "1"
+"kubernetes.io/cluster/final-eks-cluster"     = "shared"
 
 
