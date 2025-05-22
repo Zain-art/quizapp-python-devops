@@ -3,7 +3,10 @@ name: CI/CD Pipeline for Flask Quiz App with AWS ECR # this is github action nam
 on:
   push:
     branches:
-      - main  # Trigger on push to all branches
+      - main
+    paths:
+      - 'QuizApp-Flask/**'
+      - '.github/workflows/**'    # Trigger on push to all branches
   pull_request:
     branches:
       - main  # Also run for PRs
@@ -49,7 +52,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./Dockerfile
+          file: ./QuizApp-Flask/Dockerfile
           push: true
           tags: ${{ secrets.ECR_REPOSITORY }}:${{ steps.git-meta.outputs.branch_name }}-${{ steps.git-meta.outputs.short_sha }}
 
