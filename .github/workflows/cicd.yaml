@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - 'QuizApp-Flask/**'
-      - '.github/workflows/**'    # Trigger on push to all branches
+      - '.github/w  orkflows/**'    # Trigger on push to all branches
   pull_request:
     branches:
       - main  # Also run for PRs
@@ -78,10 +78,10 @@ jobs:
           fi
 
       # Step 9: Manually trigger ArgoCD sync (if auto-sync is disabled)
-      - name: Sync ArgoCD application
-        env:
-          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
-          ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
-        run: |
-          curl -k -H "Authorization: Bearer $ARGOCD_AUTH_TOKEN" \
-               -X POST "$ARGOCD_SERVER/api/v1/applications/quiz-app/sync"
+      # - name: Sync ArgoCD application
+      #   env:
+      #     ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+      #     ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
+      #   run: |
+      #     curl -k -H "Authorization: Bearer $ARGOCD_AUTH_TOKEN" \
+      #          -X POST "$ARGOCD_SERVER/api/v1/applications/quiz-app/sync"
