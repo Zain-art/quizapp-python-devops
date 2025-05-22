@@ -667,6 +667,7 @@ variable "eks_node_security_group_id" {
 
 
 ```
+
 ### Docker / Containerization
 - Write a basic Python Flask app (e.g., app.py)
 - Create a Dockerfile to containerize the app
@@ -716,6 +717,7 @@ CMD ["python", "app.py"]
 
 ```
 ### Run Commands to Create a Dockker Image
+```
 ```
 docker build -t quizapp:latest .
 docker run -it -p 5000:5000 quizapp:latest
