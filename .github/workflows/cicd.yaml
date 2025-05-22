@@ -10,7 +10,8 @@ on:
   pull_request:
     branches:
       - main  # Also run for PRs
-
+permissions:
+  contents: write  # Required to push changes to repo
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -67,9 +68,14 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git add k8s-manifest/quiz-deployment.yaml
-          git commit -m "ci: update image to ${{ steps.git-meta.outputs.branch_name }}-${{ steps.git-meta.outputs.short_sha }}"
-          git push origin ${{ github.ref_name }}
+          git pull origin ${{ github.ref_name }}  # Ensure local is up-to-date
+          if git diff --quiet; then
+            echo "No changes to commit."
+          else
+            git add k8s-manifest/quiz-deployment.yaml
+            git commit -m "ci: update image to ${{ steps.git-meta.outputs.branch_name }}-${{ steps.git-meta.outputs.short_sha }}"
+            git push https://x-access-token:${{ secrets.GT_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref_name }}
+          fi
 
       # Step 9: Manually trigger ArgoCD sync (if auto-sync is disabled)
       - name: Sync ArgoCD application
