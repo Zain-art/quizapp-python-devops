@@ -17,4 +17,17 @@
 - DevOps Engineer
 - Experience: Intermediate with AWS, Docker, Kubernetes, and CI/CD tools
 
+### Architecture Overview
 
+[GitHub] → [GitHub Actions] → [Docker Image → ECR] → [Argo CD → EKS Cluster → Pods]
+                     ↓
+               [Terraform Infrastructure: VPC, EKS, ECR]
+
+
+## Infrastructure Setup (Terraform)
+- VPC with public and private subnets across 2 AZs
+- Internet Gateway and NAT Gateway
+- EKS Cluster with private worker nodes
+- ECR repository for Docker images
+
+               
