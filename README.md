@@ -20,12 +20,18 @@
 - CI/CD pipeline built using GitHub Actions with Docker image tagging format: branch_name:commitID
 - Docker image pushed to AWS ECR and deployed using Argo CD with auto-sync enabled
 
-### Scope
-This documentation focuses on setting up a complete DevOps pipeline in AWS:
+## Scope <a name="scope"></a>
+This guide provides a step-by-step approach to building a production-ready AWS EKS environment with full CI/CD automation.  
 
-- Covered: Networking, Kubernetes with EKS, Docker, CI/CD using GitHub Actions and Argo CD, Terraform modules
+**Included:**  
+- Terraform-managed networking (VPC, NAT/Internet Gateways)  
+- Cost-optimized EKS cluster with Spot Instances  
+- Dockerized Python Flask app deployment  
+- GitOps-driven CI/CD using GitHub Actions + Argo CD  
 
-- Not Covered: Flask application development in-depth, Kubernetes performance tuning, Cost optimization
+**Excluded:**  
+- Application code deep dives  
+- Advanced Kubernetes tuning
 
 ### Intended Audience
 - DevOps Engineer
@@ -54,24 +60,12 @@ terraform init
 terraform plan
 terraform apply
 ```
-#### Outputs:
-- VPC Networking endpoints like vpc id,public subnets id,private subnets id,igw,nat gateway.
+
   
 
 ---
 
-## Scope <a name="scope"></a>
-This guide provides a step-by-step approach to building a production-ready AWS EKS environment with full CI/CD automation.  
-
-**Included:**  
-- Terraform-managed networking (VPC, NAT/Internet Gateways)  
-- Cost-optimized EKS cluster with Spot Instances  
-- Dockerized Python Flask app deployment  
-- GitOps-driven CI/CD using GitHub Actions + Argo CD  
-
-**Excluded:**  
-- Application code deep dives  
-- Advanced Kubernetes tuning  
+  
 
 ---
 
