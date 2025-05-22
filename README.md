@@ -555,7 +555,7 @@ vpc_tag = tomap({
   name_vpc             = "quiz-vpc"
 }
 ------------------------
-Security Group work as a Firewall TO Incomming and OutGoing Traffic on Nodes
+Security Group work as a Firewall TO Control Incomming and OutGoing Traffic on Nodes and Cluster
 resource "aws_security_group" "eks_cluster" {
   name        = "${local.cluster_name}-sg-quiz-eks"
   description = "Cluster communication with worker nodes"
@@ -715,12 +715,17 @@ EXPOSE 5000
 CMD ["python", "app.py"]
 
 ```
+### Run Commands to Create a Dockker Image
+```
+docker build -t quizapp:latest .
+docker run -it -p 5000:5000 quizapp:latest
+docker ps  ## to check the docker containers
+
 ---
 ### Deploy Application on Kubernetes
 - Create Kubernetes Deployment with 2–3 replicas
 - Use podAntiAffinity rules to ensure replicas are on different nodes
-- Create a Kubernetes Service and expose using ALB Ingress Controller
-- Configure ALB Ingress annotations for path-based routing if needed
+- Create a Kubernetes Service and expose using ALB or NLB 
 
 - Create Kubernetes Deployment with 2–3 replicas
 ```
@@ -810,9 +815,6 @@ metadata:
     service.beta.kubernetes.io/aws-load-balancer-type: "nlb" # Use NLB (Network Load Balancer)
     # service.beta.kubernetes.io/aws-load-balancer-internal: "false" # Set to "true" if you want internal-only LB
     service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
-    # Optional additional annotations:
-    # service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "<your-arn>" # for SSL cert
-    # service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "http"
 spec:
   selector:
     app: quizapp
@@ -821,6 +823,26 @@ spec:
       port: 80
       targetPort: 5000
   type: LoadBalancer
+```
+#### Run Kubernetes Commands to Create the Deployment,Service,PV (PersistentVolume) and PVC.
+```
+kubectl apply -f pv.yaml
+kubectl apply -f pvc.yaml
+kubectl apply -f quiz-deployment.yaml
+kubectl apply -f quiz-service.yaml
+kubectl get nodes
+kubectl get nodes -o wide
+kubectl get pods
+kubectl get pv
+kubectl get pvc
+kubectl get svc
+kubectl logs podID
+kubectl describe pod podID or any other resource.
+kubectl delete -f quiz-deployment.yaml
+kubectl delete -f pv.yaml
+kybectl delete -f pvc.yaml
+kubectl delete -f quiz-service.yaml
+
 ```
 ---
 ### Implement CI / CD
@@ -838,7 +860,7 @@ on:
       - main
     paths:
       - 'QuizApp-Flask/**'
-      - '.github/workflows/**'    # Trigger on push to all branches
+      - '.github/workflows/**'    # Trigger on push if any changes do in these dir/CICD file
   pull_request:
     branches:
       - main  # Also run for PRs
