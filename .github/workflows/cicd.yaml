@@ -59,7 +59,8 @@ jobs:
       # Step 7: Update the Kubernetes deployment YAML with the new image tag
       - name: Update deployment manifest with new image tag
         run: |
-          sed -i "s|image: .*|image: ${{ secrets.ECR_REPOSITORY }}:${{ steps.git-meta.outputs.branch_name }}-${{ steps.git-meta.outputs.short_sha }}|" k8s/deployment.yaml
+          ls -l k8s-manifest/quiz-deployment.yaml 
+          sed -i "s|image: .*|image: ${{ secrets.ECR_REPOSITORY }}:${{ steps.git-meta.outputs.branch_name }}-${{ steps.git-meta.outputs.short_sha }}|" k8s-manifest/quiz-deployment.yaml
 
       # Step 8: Commit and push the updated manifest to Git (triggers ArgoCD GitOps)
       - name: Commit updated manifest
