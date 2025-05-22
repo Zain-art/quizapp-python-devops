@@ -28,7 +28,7 @@ spec:
       volumes:
         - name: sqlite-storage
           persistentVolumeClaim:
-            claimName: sqlite-pvc
+            claimName: local-pvc
 
       affinity:
         podAntiAffinity:
