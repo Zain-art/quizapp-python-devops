@@ -15,7 +15,10 @@ spec:
       containers:
         - name: quizapp
           image: 241533146625.dkr.ecr.us-east-1.amazonaws.com/quizapp-flask:main-bcff527
+<<<<<<< HEAD
 
+=======
+>>>>>>> ee400454eac39dfad9383da5307f8ad5d07059a9
           ports:
             - containerPort: 5000
           volumeMounts:
