@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: quizapp
-          image: 241533146625.dkr.ecr.us-east-1.amazonaws.com/quizapp-flask:main-bcff527
+          image: 241533146625.dkr.ecr.us-east-1.amazonaws.com/quizapp-flask:main-8eae3da
 <<<<<<< HEAD
 
 =======
