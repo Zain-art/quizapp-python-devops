@@ -329,11 +329,17 @@ variable "default_tags" {
 #### 2. Configure Backend and Initialize
 ```
 terraform init
+terraform fmt
 terraform plan
 terraform apply
 ```
-
 ---
+## After Creating successfully VPC you can create EKS Cluster using Terraform:
+- Create an EKS Kubernetes Cluster.
+- Use EC2 Spot Instances to save cost.
+- Distribute nodes across AZs for High Availability
+- Define node IAM roles and permissions carefully
+```
 
 
 
