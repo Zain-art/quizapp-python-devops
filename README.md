@@ -32,9 +32,8 @@
 
 ### Steps:
 #### 1. Clone Terraform Repository
-```
-https://github.com/Zain-art/quizapp-python-devops.git
-```
+
+- [Github Repo](https://github.com/Zain-art/quizapp-python-devops.git)
 #### 2. Configure Backend and Initialize
 ```
 terraform init
