@@ -240,7 +240,7 @@ output "public_subnet_ids" {
 
 ```
 ---
-- Create a private subnets in same VPC:
+- Create a 2  private subnets in same VPC:
 ```
 resource "aws_subnet" "private" {
   count             = length(var.subnet_cidrs)
@@ -274,8 +274,39 @@ variable "cluster_name" {
 
 ```
 ---
+Create a NAT Gateway for private subnets:
+```
+resource "aws_eip" "nat" {
+   count  = length(var.public_subnet_ids)
+  domain = "vpc"
 
+  tags = {
+    Name = "${var.nat_eip_names[count.index]}-nat-quiz"
+  }
+}
+
+resource "aws_nat_gateway" "nat" {
+  count         = length(var.public_subnet_ids)
+ allocation_id = aws_eip.nat[count.index].id 
+  subnet_id     = var.public_subnet_ids[count.index]
+
+  tags = {
+    Name = "${var.nat_eip_names[count.index]}-nat-quiz"
+  }
+
+ 
+}
   
+variable "public_subnet_ids" {
+  type = list(string)
+}
+variable "default_tags" {
+  type = map(string)
+}
+variable "nat_eip_names" {
+  type = list(string)
+}
+```
 
 ---
 
