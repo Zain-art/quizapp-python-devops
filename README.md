@@ -65,7 +65,7 @@ terraform apply
 ```
 ### Module 1 - Set up Networking in AWS using Terraform
 - Create a custom VPC
-  ```
+```
 resource "aws_vpc" "my_vpc_eks" {
   cidr_block           = var.vpc_cidr
   enable_dns_support   = true
@@ -88,7 +88,7 @@ output "vpc_id" {
 output "vpc_tag" {
   value = aws_vpc.my_vpc_eks.tags_all
 }
-  ```
+```
   
 
 ---
