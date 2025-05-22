@@ -77,7 +77,7 @@ This guide provides a step-by-step approach to building a production-ready AWS E
 - Provision NAT Gateway in public subnet for private subnet access
 - Use Terraform modules for reusability
   
-- First Create a provider:
+- 1 First Create a provider:
  ```
 # Terraform and Provider Version
 
@@ -98,7 +98,7 @@ provider "aws" {
 
 
 ```
-- Create a variables.tf file
+- 2 Create a variables.tf file
  ```
 variable "aws_region" {
   description = "AWS region"
@@ -127,7 +127,7 @@ variable "eks_node_security_group_id" {
   default = "sg-020ab41ad49f3e243"
 }
 ```
-- Create a local file for storing values in the main root folder:
+- 3 Create a local file for storing values in the main root folder:
 ```
 
 locals {
@@ -166,7 +166,7 @@ public_subnet_ids  = ["subnet-06a6ad10916484449", "subnet-013c330a7ccd02e61"]
 
 }
 ```
-- Create a custom VPC
+- 4 Create a custom VPC
 ```
 
 resource "aws_vpc" "my_vpc_eks" {
@@ -192,7 +192,7 @@ output "vpc_tag" {
   value = aws_vpc.my_vpc_eks.tags_all
 }
 ```
-- Create a backend.tf file for storing the remote state management and state lock file in S3 bucket.
+- 5 Create a backend.tf file for storing the remote state management and state lock file in S3 bucket.
 ```
 terraform {
   backend "s3" {
@@ -214,7 +214,7 @@ terraform {
 }
 ```
 ---
-- Create a 2 public subnets in VPC:
+- 6 Create a 2 public subnets in VPC:
 ```
 resource "aws_subnet" "public" {
   count                   = length(var.subnet_cidrs)
@@ -252,7 +252,7 @@ output "public_subnet_ids" {
 
 ```
 ---
-- Create a 2  private subnets in same VPC:
+- 7 Create a 2  private subnets in same VPC:
 ```
 resource "aws_subnet" "private" {
   count             = length(var.subnet_cidrs)
@@ -286,7 +286,7 @@ variable "cluster_name" {
 
 ```
 ---
-- Create a NAT Gateway for private subnets:
+- 8 Create a NAT Gateway for private subnets:
 ```
 resource "aws_eip" "nat" {
    count  = length(var.public_subnet_ids)
@@ -320,7 +320,7 @@ variable "nat_eip_names" {
 }
 ```
 ---
-- Create a Internet Gateway for public subnets:
+- 9 Create a Internet Gateway for public subnets:
 ```
 resource "aws_internet_gateway" "igw" {
   vpc_id = var.vpc_id
@@ -334,7 +334,7 @@ variable "default_tags" {
 ```
 ---
 - AFter copy code you would be run these fome Terraform commands to create a VPC:
-#### 2. Configure Backend and Initialize
+####  Configure Backend and Initialize
 ```
 terraform init
 terraform fmt
@@ -347,7 +347,327 @@ terraform apply
 - Use EC2 Spot Instances to save cost.
 - Distribute nodes across AZs for High Availability
 - Define node IAM roles and permissions carefully
+
+- 1 Create an EKS Kubernetes Cluster.
 ```
+
+module "eks" {
+  source  = "terraform-aws-modules/eks/aws"
+  version = "20.36.0"
+
+  cluster_name    = "quiz-eks-cluster"
+  cluster_version = "1.31"
+  vpc_id          = var.vpc_id
+  subnet_ids      = var.private_subnet_ids
+
+  cluster_endpoint_public_access = true
+
+  # iam_role_arn = aws_iam_role.eks_cluster_role.arn
+cluster_addons = {
+    coredns = {
+      most_recent = true
+    }
+    kube-proxy = {
+      most_recent = true
+    }
+    vpc-cni = {
+      most_recent = true
+    }
+     aws-efs-csi-driver = {
+    most_recent = true
+  }
+  }
+  eks_managed_node_groups = {
+    spot_nodes = {
+      desired_size   = 2
+      min_size       = 2
+      max_size       = 4
+      instance_types = ["t3.medium", "t3.medium"]
+      capacity_type  = "SPOT"
+      subnets        = var.private_subnet_ids
+    
+    }
+  }
+
+ 
+  access_entries = {
+    eks_user_access = {
+      principal_arn = "arn:aws:iam::241533146625:user/eks-user-terraform"
+      type          = "STANDARD"
+     
+   policy_associations = {
+      admin = {
+        policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+        access_scope = {
+          type = "cluster"
+        }
+      }
+    }
+    }
+  }
+
+  tags = {
+    Environment = "dev"
+    Terraform   = "true"
+  }
+}
+##---------------------------------##
+# Node group IAM role and policy
+resource "aws_iam_role" "nodes" {
+  name = "${local.env}${local.eks_name}-eks-nodes"
+
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      }
+    }
+  ]
+}
+POLICY
+}
+
+# This policy now includes AssumeRoleForPodIdentity for the Pod Identity Agent
+resource "aws_iam_role_policy_attachment" "amazon_eks_worker_node_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+  role       = aws_iam_role.nodes.name
+}
+
+resource "aws_iam_role_policy_attachment" "amazon_eks_cni_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+  role       = aws_iam_role.nodes.name
+}
+
+resource "aws_iam_role_policy_attachment" "amazon_ec2_container_registry_read_only" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  role       = aws_iam_role.nodes.name
+}
+##---------------------##
+EKS ADD manager to give the Full Access to EKS Cluster
+data "aws_caller_identity" "current" {}
+
+resource "aws_iam_role" "eks_admin" {
+  name = "${local.env}-${local.eks_name}-eks-admin"
+
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+      }
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_iam_policy" "eks_admin" {
+  name = "AmazonEKSAdminPolicy"
+
+  policy = <<POLICY
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "eks:*"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "iam:PassRole",
+            "Resource": "*",
+            "Condition": {
+                "StringEquals": {
+                    "iam:PassedToService": "eks.amazonaws.com"
+                }
+            }
+        }
+    ]
+}
+POLICY
+}
+
+resource "aws_iam_role_policy_attachment" "eks_admin" {
+  role       = aws_iam_role.eks_admin.name
+  policy_arn = aws_iam_policy.eks_admin.arn
+}
+
+resource "aws_iam_user" "manager" {
+  name = "manager"
+}
+
+resource "aws_iam_policy" "eks_assume_admin" {
+  name = "AmazonEKSAssumeAdminPolicy"
+
+  policy = <<POLICY
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "sts:AssumeRole"
+            ],
+            "Resource": "${aws_iam_role.eks_admin.arn}"
+        }
+    ]
+}
+POLICY
+}
+
+resource "aws_iam_user_policy_attachment" "manager" {
+  user       = aws_iam_user.manager.name
+  policy_arn = aws_iam_policy.eks_assume_admin.arn
+}
+
+---------------------------
+eks-cluster/local.tf
+locals {
+ nat_gateway_ids = [
+  "nat-099d5f3eb8d02a1a5",
+  "nat-0999cbb2d756faadc",
+]
+vpc_cidr_block     = "10.0.0.0/16"
+vpc_id             = "vpc-053fc19cb7e5c3bd4"
+private_subnet_ids =  ["subnet-031ac6c50171a6528", "subnet-00780688da342dfe4"]
+public_subnet_ids  = ["subnet-06a6ad10916484449", "subnet-013c330a7ccd02e61"]
+vpc_tag = tomap({
+  "name" = "quiz-vpc-eks"
+})
+ env                  = "dev"
+  region               = "us-east-1"
+  eks_name = "quiz-eks-cluster"
+  # vpc_cidr_block       = "10.0.0.0/16"
+   cluster_name         = "quiz-eks-cluster"
+  eks_version      = "1.31"
+  name_vpc             = "quiz-vpc"
+}
+------------------------
+Security Group work as a Firewall TO Incomming and OutGoing Traffic on Nodes
+resource "aws_security_group" "eks_cluster" {
+  name        = "${local.cluster_name}-sg-quiz-eks"
+  description = "Cluster communication with worker nodes"
+  vpc_id      = var.vpc_id
+
+  tags = merge({
+    Name                                      = "quiz-eks-cluster"
+    "kubernetes.io/role/internal-elb"        = "1"
+    "kubernetes.io/cluster/${local.cluster_name}" = "shared"
+  })
+}
+
+resource "aws_security_group" "eks_nodes" {
+  name        = "eks-nodes-sg-quiz-eks"
+  description = "EKS worker nodes"
+  vpc_id      = var.vpc_id
+
+  tags = {
+    Name = "quiz-eks-nodes-sg"
+    "kubernetes.io/cluster/${local.cluster_name}" = "owned"
+  }
+}
+
+# 📡 Allow control plane to communicate with worker nodes
+resource "aws_security_group_rule" "control_plane_to_nodes_https" {
+  type                     = "ingress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.eks_cluster.id
+  security_group_id        = aws_security_group.eks_nodes.id
+  description              = "EKS control plane to node group"
+}
+
+# 🔁 Allow nodes to communicate with each other
+resource "aws_security_group_rule" "node_to_node_all" {
+  type                     = "ingress"
+  from_port                = 0
+  to_port                  = 65535
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.eks_nodes.id
+  security_group_id        = aws_security_group.eks_nodes.id
+  description              = "Node to node communication"
+}
+
+# 🌐 Allow internet access (for pulling container images, updates, etc.)
+resource "aws_security_group_rule" "node_allow_https_out" {
+  type              = "egress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.eks_nodes.id
+  description       = "Allow HTTPS egress"
+}
+
+# 🧪 Optional: Allow SSH to nodes (for debugging)
+resource "aws_security_group_rule" "ssh_access_to_nodes" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks       = ["154.192.0.41/32"]  # Replace with your IP if needed
+  security_group_id = aws_security_group.eks_nodes.id
+  description       = "Allow SSH from your IP"
+}
+
+# 🌍 Allow outbound from nodes to internet
+resource "aws_security_group_rule" "all_outbound_from_nodes" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.eks_nodes.id
+  description       = "Allow all outbound traffic"
+}
+
+-------------------
+variable "cluster_name" {
+  type        = string
+  description = "EKS cluster name"
+}
+variable "region" {
+  default = "us-east-1"
+  type = string
+}
+variable "vpc_id" {
+  type        = string
+  description = "VPC ID for the cluster"
+}
+
+variable "public_subnet_ids" {
+  type        = list(string)
+  description = "List of public subnet IDs"
+}
+
+variable "private_subnet_ids" {
+  type        = list(string)
+  description = "List of private subnet IDs"
+}
+
+
+
+variable "eks_node_security_group_id" {
+  type = string
+}
+
+
+
+```
+
 
 
 
