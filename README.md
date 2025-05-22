@@ -30,4 +30,7 @@
 - EKS Cluster with private worker nodes
 - ECR repository for Docker images
 
-               
+### 1 Steps:
+```
+https://github.com/Zain-art/quizapp-python-devops.git
+```bash
