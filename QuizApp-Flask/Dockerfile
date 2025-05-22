@@ -1,5 +1,5 @@
 # -------- Stage 1: Builder --------
-FROM python:3.11-slim AS builder
+FROM python:3.13-slim AS builder
 
 # Set working directory
 WORKDIR /app
@@ -11,19 +11,19 @@ RUN apt-get update && apt-get install -y build-essential gcc && \
 # Copy requirements and install packages
 COPY requirements.txt .
 RUN pip install --upgrade pip
-RUN pip install --user -r requirements.txt
+RUN pip install -r requirements.txt
 
 # Copy application code
 COPY . .
 
 # -------- Stage 2: Runtime --------
-FROM python:3.11-slim
+FROM python:3.13-slim
 
 # Set working directory
 WORKDIR /app
 
 # Copy dependencies and code from builder
-COPY --from=builder /root/.local /root/.local
+
 COPY --from=builder /app /app
 
 # Ensure the installed packages are found
