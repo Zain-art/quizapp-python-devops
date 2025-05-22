@@ -11,7 +11,7 @@
 ### Scope
 - Infrastructure provisioning using Terraform
 - CI/CD implementation using GitHub Actions
-- Deployment using Argo CD on AWS EKS
+- Deployment using Argo CD on AWS EK
 
 ### Intended Audience
 - DevOps Engineer
@@ -30,7 +30,19 @@
 - EKS Cluster with private worker nodes
 - ECR repository for Docker images
 
-### 1 Steps:
+### Steps:
+#### 1. Clone Terraform Repository
 ```
 https://github.com/Zain-art/quizapp-python-devops.git
 ```
+#### 2. Configure Backend and Initialize
+```
+terraform init
+terraform plan
+terraform apply
+```
+#### Outputs:
+- VPC Networking endpoints like vpc id,public subnets id,private subnets id,igw,nat gateway.
+  
+
+
