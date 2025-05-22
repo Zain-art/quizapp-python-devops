@@ -935,10 +935,64 @@ argocd login localhost:8080 --username admin --password admin123
 argocd account generate-token --account admin
 kubectl -n argocd port-forward svc/argocd-server 8080:443
 kubectl get svc -n argocd
-kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}'
+
+```
+---
+### Implement IaC - Terraform
+- Create reusable Terraform modules: vpc/, eks/
+- Set up remote state in S3 with DynamoDB for state locking
+
 ```
 
+terraform {
+  backend "s3" {
+    bucket         = "zain-terraform-backend"
+    key            = "vpc/terraform.tfstate"
+    region         = "us-east-1"
+    # dynamodb_table = "terraform-locks-vpc"
+    encrypt        = true
+  }
+}
 
+
+resource "aws_dynamodb_table" "tf_locks" {
+  name         = "terraform-locks-vpc"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "LockID"
+
+  attribute {
+    name = "LockID"
+    type = "S"
+  }
+
+  tags = {
+    Name = "Terraform Lock Table"
+  }
+}
+
+```
+### Additional Resources
+- [AWS EKS Official Docs
+
+Terraform AWS Provider
+
+Docker Documentation
+
+GitHub Actions Guide
+
+Argo CD Documentation
+
+Kubernetes Basics](AWS EKS Official Docs
+
+Terraform AWS Provider
+
+Docker Documentation
+
+GitHub Actions Guide
+
+Argo CD Documentation
+
+Kubernetes Basics)
 
 
 
