@@ -36,7 +36,16 @@ This guide provides a step-by-step approach to building a production-ready AWS E
 ## Intended Audience <a name="intended-audience"></a>
 - **DevOps Engineers** automating cloud deployments  
 - **Developers** seeking Kubernetes deployment skills  
-- **Cloud Architects** designing scalable infrastructures  
+- **Cloud Architects** designing scalable infrastructures
+
+
+## Key Definitions <a name="key-definitions"></a>
+| Term               | Definition                                                                 |
+|---------------------|---------------------------------------------------------------------------|
+| **VPC**             | Isolated virtual network for AWS resources                                |
+| **EKS**             | Managed Kubernetes service by AWS                                        |
+| **podAntiAffinity** | Kubernetes rule to distribute pods across nodes                          |
+| **Argo CD**         | GitOps tool for declarative Kubernetes deployments                        |  
 
 **Prerequisites:**  
 - AWS CLI + Terraform installed  
@@ -58,12 +67,7 @@ This guide provides a step-by-step approach to building a production-ready AWS E
 #### 1. Clone Terraform Repository
 
 - [Github Repo : https://github.com/Zain-art/quizapp-python-devops.git](https://github.com/Zain-art/quizapp-python-devops.git)
-#### 2. Configure Backend and Initialize
-```
-terraform init
-terraform plan
-terraform apply
-```
+
 ### Module 1 - Set up Networking in AWS using Terraform with isolated files and subfolders in the main folder
 - First Create a provider:
  ```
@@ -274,7 +278,7 @@ variable "cluster_name" {
 
 ```
 ---
-Create a NAT Gateway for private subnets:
+- Create a NAT Gateway for private subnets:
 ```
 resource "aws_eip" "nat" {
    count  = length(var.public_subnet_ids)
@@ -307,18 +311,29 @@ variable "nat_eip_names" {
   type = list(string)
 }
 ```
+---
+- Create a Internet Gateway for public subnets:
+```
+resource "aws_internet_gateway" "igw" {
+  vpc_id = var.vpc_id
+  tags   = var.default_tags
+}
+
+variable "vpc_id" {}
+variable "default_tags" {
+    type = map(string)
+}
+```
+---
+- AFter copy code you would be run these fome Terraform commands to create a VPC:
+#### 2. Configure Backend and Initialize
+```
+terraform init
+terraform plan
+terraform apply
+```
 
 ---
 
 
-
----
-
-## Key Definitions <a name="key-definitions"></a>
-| Term               | Definition                                                                 |
-|---------------------|---------------------------------------------------------------------------|
-| **VPC**             | Isolated virtual network for AWS resources                                |
-| **EKS**             | Managed Kubernetes service by AWS                                        |
-| **podAntiAffinity** | Kubernetes rule to distribute pods across nodes                          |
-| **Argo CD**         | GitOps tool for declarative Kubernetes deployments                        |
 
