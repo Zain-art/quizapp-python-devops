@@ -1007,11 +1007,29 @@ resource "aws_dynamodb_table" "tf_locks" {
 
  ENIs (Elastic Network Interfaces)
    - Minimum Required Tags for LoadBalancer Support:
-    1  For public subnets:
+  -  ** 1  For public subnets:
        "kubernetes.io/role/elb"                      = "1"
         "kubernetes.io/cluster/final-eks-cluster"     = "shared"
-   2 For private subnets:
+   - ** 2 For private subnets:
         "kubernetes.io/role/internal-elb"             = "1"
          "kubernetes.io/cluster/final-eks-cluster"     = "shared"
+#### What is terraform.tfstate?
+ terraform.tfstate is a file that stores the current state of your infrastructure as seen by Terraform. It acts like a snapshot of the real-world resources you've deployed.
+ -It includes:
+ - Resource metadata (like IDs, ARNs)
+ - Inputs/outputs
+ - Dependencies between resources
+####  What is State Locking?
+State locking prevents simultaneous operations on the same Terraform state. If two people run terraform apply at the same time, it could corrupt the state. Locking ensures only one operation happens at a time.
+- In local state, no locking occurs by default.
+- In remote state, Terraform uses locks (e.g., DynamoDB for AWS).
+#### What is Remote State?
+Remote state stores the state file in a shared backend like:
+
+Backend	Purpose
+- S3 + DynamoDB	         Popular for AWS, with locking using DynamoDB
+- Terraform Cloud	       Managed state and team collaboration
+- Azure Blob	            For Azure-based teams
+- Google Cloud Storage	  For GCP deployments
 
 
