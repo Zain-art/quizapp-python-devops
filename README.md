@@ -972,27 +972,17 @@ resource "aws_dynamodb_table" "tf_locks" {
 
 ```
 ### Additional Resources
-- [AWS EKS Official Docs
-
-Terraform AWS Provider
-
-Docker Documentation
-
-GitHub Actions Guide
-
-Argo CD Documentation
-
-Kubernetes Basics](AWS EKS Official Docs
-
-Terraform AWS Provider
-
-Docker Documentation
-
-GitHub Actions Guide
-
-Argo CD Documentation
-
-Kubernetes Basics)
+- [AWS EKS Official Doc Kubernetes Basics]([AWS EKS Official Doc Kubernetes Basics](https://docs.aws.amazon.com/eks/latest/userguide/create-cluster.html)
+- [AWS Kubernetes versions on standard support](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions-standard.html)
+- [View Amazon EKS platform versions for each Kubernetes version](https://docs.aws.amazon.com/eks/latest/userguide/platform-versions.html)
+- [Connect kubectl to an EKS cluster by creating a kubeconfig file](https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html)
+- [Manage compute resources by using nodes](https://docs.aws.amazon.com/eks/latest/userguide/eks-compute.html)
+- [Create a managed node group for your cluster](https://docs.aws.amazon.com/eks/latest/userguide/create-managed-node-group.html)
+- [Maintain nodes yourself with self-managed nodes](https://docs.aws.amazon.com/eks/latest/userguide/worker.html)
+- [Terraform module to create Amazon Elastic Kubernetes (EKS) resources with Latest Version](https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest)
+- [AWS VPC Terraform module](https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest)
+- [Create an EKS Cluster Using Terraform](https://medium.com/@rvisingh1221/create-an-eks-cluster-using-terraform-329b9dde068f)
+- [Create Amazon EKS Cluster within its VPC using Terraform](https://platformwale.blog/2023/07/15/create-amazon-eks-cluster-within-its-vpc-using-terraform/)
 
 
 
