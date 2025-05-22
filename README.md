@@ -667,6 +667,277 @@ variable "eks_node_security_group_id" {
 
 
 ```
+### Docker / Containerization
+- Write a basic Python Flask app (e.g., app.py)
+- Create a Dockerfile to containerize the app
+- Build and run the Docker container locally
+- est it on localhost:5000
+- Push image to Docker Hub or AWS ECR
+
+- Create a Dockerfile 
+```
+# -------- Stage 1: Builder --------
+FROM python:3.13-slim AS builder
+
+# Set working directory
+WORKDIR /app
+
+# Install OS-level dependencies
+RUN apt-get update && apt-get install -y build-essential gcc && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install packages
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY . .
+
+# -------- Stage 2: Runtime --------
+FROM python:3.13-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy dependencies and code from builder
+# Copy installed Python packages and application code from builder
+COPY --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
+COPY --from=builder /app /app
+
+RUN mkdir -p /app
+
+
+# Expose the default Flask port
+EXPOSE 5000
+
+# Run the Flask application
+CMD ["python", "app.py"]
+
+```
+---
+### Deploy Application on Kubernetes
+- Create Kubernetes Deployment with 2–3 replicas
+- Use podAntiAffinity rules to ensure replicas are on different nodes
+- Create a Kubernetes Service and expose using ALB Ingress Controller
+- Configure ALB Ingress annotations for path-based routing if needed
+
+- Create Kubernetes Deployment with 2–3 replicas
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quizapp-deploy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: quizapp
+  template:
+    metadata:
+      labels:
+        app: quizapp
+    spec:
+      containers:
+        - name: quizapp
+
+          image: 241533146625.dkr.ecr.us-east-1.amazonaws.com/quizapp-flask:main-58f4916
+
+          ports:
+            - containerPort: 5000
+          volumeMounts:
+            - name: sqlite-storage
+              mountPath: /app/data
+          env:
+            - name: FLASK_ENV
+              value: "production"
+            - name: SQLALCHEMY_DATABASE_URI
+              value: "sqlite:////app/data/db.sqlite"
+      volumes:
+        - name: sqlite-storage
+          persistentVolumeClaim:
+            claimName: sqlite-pvc
+
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - quizapp
+                topologyKey: "kubernetes.io/hostname"
+```
+- Create PV file
+```
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: sqlite-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  hostPath:
+    path: "/mnt/data/sqlite"
+```
+- Create PVC file
+```
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sqlite-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+```
+- Create Service file
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: quizapp-service
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb" # Use NLB (Network Load Balancer)
+    # service.beta.kubernetes.io/aws-load-balancer-internal: "false" # Set to "true" if you want internal-only LB
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+    # Optional additional annotations:
+    # service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "<your-arn>" # for SSL cert
+    # service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "http"
+spec:
+  selector:
+    app: quizapp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: LoadBalancer
+```
+---
+### Implement CI / CD
+- CI using GitHub Actions:
+  - On every push to a branch:
+  - Tag image as <BranchName>-<CommitID>
+  - Push image to container registry
+
+```
+name: CI/CD Pipeline for Flask Quiz App with AWS ECR # this is github action name
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'QuizApp-Flask/**'
+      - '.github/workflows/**'    # Trigger on push to all branches
+  pull_request:
+    branches:
+      - main  # Also run for PRs
+permissions:
+  contents: write  # Required to push changes to repo
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code from GitHub
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Required to get full git history for metadata
+
+      # Step 2: Configure AWS credentials from GitHub Secrets
+      - name: Configure AWS of my credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # Step 3: Log in to Amazon ECR using AWS credentials
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      # Step 4: Extract branch name and short commit SHA for Docker tag
+      - name: Extract Git metadata
+        id: git-meta
+        run: |
+          echo "branch_name=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+          echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      # Step 5: Display image tag in logs
+      - name: Show Docker image tag
+        run: |
+          echo "Docker Image Tag: ${{ steps.git-meta.outputs.branch_name }}-${{ steps.git-meta.outputs.short_sha }}"
+
+      # Step 6: Build and push Docker image to Amazon ECR
+      - name: Build and push Docker image to Amazon ECR
+        uses: docker/build-push-action@v4
+        with:
+          context: ./QuizApp-Flask
+          file: ./QuizApp-Flask/Dockerfile
+          push: true
+          tags: ${{ secrets.ECR_REPOSITORY }}:${{ steps.git-meta.outputs.branch_name }}-${{ steps.git-meta.outputs.short_sha }}
+
+      # Step 7: Update the Kubernetes deployment YAML with the new image tag
+      - name: Update deployment manifest with new image tag
+        run: |
+          ls -l k8s-manifest/quiz-deployment.yaml 
+          sed -i "s|image: .*|image: ${{ secrets.ECR_REPOSITORY }}:${{ steps.git-meta.outputs.branch_name }}-${{ steps.git-meta.outputs.short_sha }}|" k8s-manifest/quiz-deployment.yaml
+
+      # Step 8: Commit and push the updated manifest to Git (triggers ArgoCD GitOps)
+      - name: Commit updated manifest
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git pull origin ${{ github.ref_name }}  # Ensure local is up-to-date
+          if git diff --quiet; then
+            echo "No changes to commit."
+          else
+            git add k8s-manifest/quiz-deployment.yaml
+            git commit -m "ci: update image to ${{ steps.git-meta.outputs.branch_name }}-${{ steps.git-meta.outputs.short_sha }}"
+            git push https://x-access-token:${{ secrets.GT_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref_name }}
+          fi
+
+      # Step 9: Manually trigger ArgoCD sync (if auto-sync is disabled)
+      # - name: Sync ArgoCD application
+      #   env:
+      #     ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+      #     ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
+      #   run: |
+      #     curl -k -H "Authorization: Bearer $ARGOCD_AUTH_TOKEN" \
+      #          -X POST "$ARGOCD_SERVER/api/v1/applications/quiz-app/sync"
+
+
+```
+- CD using Argo CD:
+  - Install Argo CD in local system or EKS Cluster or EC2 Instance.
+  - Configure Git repository for app manifests
+  - Auto-sync and deploy updated images on each commit
+
+```
+ubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+
+ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
+argocd login localhost:8080 --username admin --password admin123
+argocd account generate-token --account admin
+kubectl -n argocd port-forward svc/argocd-server 8080:443
+kubectl get svc -n argocd
+kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}'
+```
+
 
 
 
