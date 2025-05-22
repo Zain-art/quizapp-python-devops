@@ -67,7 +67,7 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git add k8s/deployment.yaml
+          git add k8s-manifest/quiz-deployment.yaml
           git commit -m "ci: update image to ${{ steps.git-meta.outputs.branch_name }}-${{ steps.git-meta.outputs.short_sha }}"
           git push origin ${{ github.ref_name }}
 
