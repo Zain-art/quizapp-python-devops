@@ -115,33 +115,7 @@ variable "eks_node_security_group_id" {
   default = "sg-020ab41ad49f3e243"
 }
 ```
-- Create a custom VPC
-```
-
-resource "aws_vpc" "my_vpc_eks" {
-  cidr_block           = var.vpc_cidr
-  enable_dns_support   = true
-  enable_dns_hostnames = true
-  tags                 = var.vpc_tag
-}
-
-variable "vpc_cidr" {
-  type = string
-  default = "10.0.0.0/16"
-}
-variable "vpc_tag" {
-  type = map(string)
-}
-
-output "vpc_id" {
-  value = aws_vpc.my_vpc_eks.id
-}
-
-output "vpc_tag" {
-  value = aws_vpc.my_vpc_eks.tags_all
-}
-```
-- Create a local file for storing values:
+- Create a local file for storing values in the main root folder:
 ```
 
 locals {
@@ -180,8 +154,125 @@ public_subnet_ids  = ["subnet-06a6ad10916484449", "subnet-013c330a7ccd02e61"]
 
 }
 ```
-  
+- Create a custom VPC
+```
 
+resource "aws_vpc" "my_vpc_eks" {
+  cidr_block           = var.vpc_cidr
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+  tags                 = var.vpc_tag
+}
+
+variable "vpc_cidr" {
+  type = string
+  default = "10.0.0.0/16"
+}
+variable "vpc_tag" {
+  type = map(string)
+}
+
+output "vpc_id" {
+  value = aws_vpc.my_vpc_eks.id
+}
+
+output "vpc_tag" {
+  value = aws_vpc.my_vpc_eks.tags_all
+}
+```
+- Create a backend.tf file for storing the remote state management and state lock file in S3 bucket.
+```
+terraform {
+  backend "s3" {
+    bucket         = "zain-terraform-backend"
+    key            = "vpc/terraform.tfstate-vpc"
+    region         = "us-east-1"
+    dynamodb_table = "terraform-locks-vpc"
+    encrypt        = true
+  }
+}
+ resource "aws_dynamodb_table" "tf_locks" {
+   name         = "terraform-locks-vpc"
+   billing_mode = "PAY_PER_REQUEST"
+   hash_key     = "LockID"
+   attribute {
+     name = "LockID"
+     type = "S"
+   }
+}
+```
+---
+- Create a 2 public subnets in VPC:
+```
+resource "aws_subnet" "public" {
+  count                   = length(var.subnet_cidrs)
+  vpc_id                  = var.vpc_id 
+  cidr_block              = var.subnet_cidrs[count.index]
+  availability_zone       = var.availability_zones[count.index]
+  map_public_ip_on_launch = true
+
+  tags = merge(var.default_tags, {
+    Name = "public-sb-quiz-${count.index + 1}"
+     "kubernetes.io/role/elb"                      = 1
+    "kubernetes.io/cluster/quiz-eks-cluster" = "shared"
+  })
+}
+
+
+variable "vpc_id" {}
+variable "subnet_cidrs" {
+  type = list(string)
+}
+variable "availability_zones" {
+  type = list(string)
+}
+variable "default_tags" {
+  type = map(string)
+}
+
+
+variable "cluster_name" {
+  type = string
+}
+output "public_subnet_ids" {
+  value = aws_subnet.public[*].id
+}
+
+```
+---
+- Create a private subnets in same VPC:
+```
+resource "aws_subnet" "private" {
+  count             = length(var.subnet_cidrs)
+  vpc_id            = var.vpc_id
+  cidr_block        = var.subnet_cidrs[count.index]
+  availability_zone = var.availability_zones[count.index]
+
+  tags = merge(var.default_tags, {
+    Name = "private-sb-quiz-${count.index + 1}"
+     "kubernetes.io/role/internal-elb"                      = 1
+    "kubernetes.io/cluster/quiz-eks-cluster" = "shared"
+  })
+} 
+
+variable "vpc_id" {}
+variable "subnet_cidrs" {
+  type = list(string)
+}
+variable "availability_zones" {
+  type = list(string)
+}
+variable "nat_gateway_ids" {
+  type = list(string)
+}
+variable "default_tags" {
+  type = map(string)
+}
+variable "cluster_name" {
+  type = string
+}
+
+```
 ---
 
   
