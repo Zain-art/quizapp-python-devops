@@ -68,7 +68,14 @@ This guide provides a step-by-step approach to building a production-ready AWS E
 
 - [Github Repo : https://github.com/Zain-art/quizapp-python-devops.git](https://github.com/Zain-art/quizapp-python-devops.git)
 
-### Module 1 - Set up Networking in AWS using Terraform with isolated files and subfolders in the main folder
+###  - Set up Networking in AWS using Terraform with isolated files and subfolders in the main folder
+- Create a custom VPC
+- Set up two public and two private subnets across AZs
+- Define separate route tables for public and private subnets
+- Attach an Internet Gateway to the public subnets
+- Provision NAT Gateway in public subnet for private subnet access
+- Use Terraform modules for reusability
+  
 - First Create a provider:
  ```
 # Terraform and Provider Version
