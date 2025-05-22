@@ -20,7 +20,7 @@ jobs:
           fetch-depth: 0  # Required to get full git history for metadata
 
       # Step 2: Configure AWS credentials from GitHub Secrets
-      - name: Configure AWS credentials
+      - name: Configure AWS of my credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
