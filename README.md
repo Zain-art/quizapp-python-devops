@@ -987,7 +987,7 @@ resource "aws_dynamodb_table" "tf_locks" {
 ---
 ### Additional Topics:
 - What is terraform taint?
-The terraform taint command marks a resource for destruction and recreation during the next terraform apply.
+  The terraform taint command marks a resource for destruction and recreation during the next terraform apply.
 
 
 
