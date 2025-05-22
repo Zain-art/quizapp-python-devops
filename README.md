@@ -32,16 +32,19 @@ This guide provides a step-by-step approach to building a production-ready AWS E
 **Excluded:**  
 - Application code deep dives  
 - Advanced Kubernetes tuning
+  
+## Intended Audience <a name="intended-audience"></a>
+- **DevOps Engineers** automating cloud deployments  
+- **Developers** seeking Kubernetes deployment skills  
+- **Cloud Architects** designing scalable infrastructures  
 
-### Intended Audience
-- DevOps Engineer
-- Experience: Intermediate with AWS, Docker, Kubernetes, and CI/CD tools
-
+**Prerequisites:**  
+- AWS CLI + Terraform installed  
+- Basic Kubernetes/Docker knowledge
+  
 ### Architecture Overview
 
-[GitHub] → [GitHub Actions] → [Docker Image → ECR] → [Argo CD → EKS Cluster → Pods]
-                     ↓
-               [Terraform Infrastructure: VPC, EKS, ECR]
+
 
 
 ## Infrastructure Setup (Terraform)
@@ -60,7 +63,32 @@ terraform init
 terraform plan
 terraform apply
 ```
+### Module 1 - Set up Networking in AWS using Terraform
+- Create a custom VPC
+  ```
+resource "aws_vpc" "my_vpc_eks" {
+  cidr_block           = var.vpc_cidr
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+  tags                 = var.vpc_tag
+}
 
+variable "vpc_cidr" {
+  type = string
+  default = "10.0.0.0/16"
+}
+variable "vpc_tag" {
+  type = map(string)
+}
+
+output "vpc_id" {
+  value = aws_vpc.my_vpc_eks.id
+}
+
+output "vpc_tag" {
+  value = aws_vpc.my_vpc_eks.tags_all
+}
+  ```
   
 
 ---
@@ -69,14 +97,7 @@ terraform apply
 
 ---
 
-## Intended Audience <a name="intended-audience"></a>
-- **DevOps Engineers** automating cloud deployments  
-- **Developers** seeking Kubernetes deployment skills  
-- **Cloud Architects** designing scalable infrastructures  
 
-**Prerequisites:**  
-- AWS CLI + Terraform installed  
-- Basic Kubernetes/Docker knowledge  
 
 ---
 
