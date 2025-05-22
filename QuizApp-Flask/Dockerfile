@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y build-essential gcc && \
 
 # Copy requirements and install packages
 COPY requirements.txt .
-RUN pip install --upgrade pip
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
@@ -23,11 +23,12 @@ FROM python:3.13-slim
 WORKDIR /app
 
 # Copy dependencies and code from builder
-
+# Copy installed Python packages and application code from builder
+COPY --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
 COPY --from=builder /app /app
-RUN mkdir -p /app/data
-# Ensure the installed packages are found
-ENV PATH=/root/.local/bin:$PATH
+
+RUN mkdir -p /app
+
 
 # Expose the default Flask port
 EXPOSE 5000
