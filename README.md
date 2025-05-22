@@ -63,9 +63,60 @@ terraform init
 terraform plan
 terraform apply
 ```
-### Module 1 - Set up Networking in AWS using Terraform
+### Module 1 - Set up Networking in AWS using Terraform with isolated files and subfolders in the main folder
+- First Create a provider:
+ ```
+# Terraform and Provider Version
+
+terraform {
+  required_version = ">= 1.11.4"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.50"
+    }
+  }
+}
+
+provider "aws" {
+  region = var.aws_region
+}
+
+
+```
+- Create a variables.tf file
+ ```
+variable "aws_region" {
+  description = "AWS region"
+  default     = "us-east-1"
+}
+variable "private_subnet_ids" {
+  description = "List of private subnet IDs"
+  type        = list(string)
+}
+
+variable "public_subnet_ids" {
+  description = "List of public subnet IDs"
+  type        = list(string)
+}
+
+variable "vpc_id" {
+  description = "vpc id"
+  type        = string
+}
+variable "cluster_name" {
+  type = string
+  default = "quiz-eks-cluster"
+}
+variable "eks_node_security_group_id" {
+  type = string
+  default = "sg-020ab41ad49f3e243"
+}
+```
 - Create a custom VPC
 ```
+
 resource "aws_vpc" "my_vpc_eks" {
   cidr_block           = var.vpc_cidr
   enable_dns_support   = true
