@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: quizapp
-          image: 241533146625.dkr.ecr.us-east-1.amazonaws.com/quizapp-flask:v1.0.4
+          image: 241533146625.dkr.ecr.us-east-1.amazonaws.com/quizapp-flask:main-8c3777a
           ports:
             - containerPort: 5000
           volumeMounts:
