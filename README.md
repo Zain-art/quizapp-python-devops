@@ -1,7 +1,19 @@
 ## This documentation details the design, deployment, and automation of a Flask-based QuizApp running on an AWS Elastic Kubernetes Service (EKS) cluster. The infrastructure is provisioned with Terraform, and a complete CI/CD pipeline is implemented using GitHub Actions and Argo CD.
 
 - Document Version: v1.0.0
-  
+ ## Table of Contents
+1. [Scope](#scope)  
+2. [Intended Audience](#intended-audience)  
+3. [Key Definitions](#key-definitions)  
+4. [Module 1 - Set up Networking in AWS using Terraform](#module-1)  
+5. [Module 2 - Create an EKS Kubernetes Cluster](#module-2)  
+6. [Module 3 - Docker / Containerization](#module-3)  
+7. [Module 4 - Deploy Application on Kubernetes](#module-4)  
+8. [Module 5 - Implement CI/CD](#module-5)  
+9. [Module 6 - Implement IaC - Terraform](#module-6)  
+10. [FAQs](#faqs)  
+11. [Additional Resources](#additional-resources)  
+
 ### Key Points
 - Flask-based QuizApp is containerized and deployed on AWS EKS.
 - Infrastructure is provisioned using Terraform (VPC, EKS, ECR).
@@ -45,18 +57,6 @@ terraform apply
 #### Outputs:
 - VPC Networking endpoints like vpc id,public subnets id,private subnets id,igw,nat gateway.
   
-## Table of Contents
-1. [Scope](#scope)  
-2. [Intended Audience](#intended-audience)  
-3. [Key Definitions](#key-definitions)  
-4. [Module 1 - Set up Networking in AWS using Terraform](#module-1)  
-5. [Module 2 - Create an EKS Kubernetes Cluster](#module-2)  
-6. [Module 3 - Docker / Containerization](#module-3)  
-7. [Module 4 - Deploy Application on Kubernetes](#module-4)  
-8. [Module 5 - Implement CI/CD](#module-5)  
-9. [Module 6 - Implement IaC - Terraform](#module-6)  
-10. [FAQs](#faqs)  
-11. [Additional Resources](#additional-resources)  
 
 ---
 
