@@ -1,2 +1,3 @@
 # Product & Document Version
-**Application Version: v1.0.0
+
+- Application Version: v1.0.0
