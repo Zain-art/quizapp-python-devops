@@ -984,5 +984,12 @@ resource "aws_dynamodb_table" "tf_locks" {
 - [Create an EKS Cluster Using Terraform](https://medium.com/@rvisingh1221/create-an-eks-cluster-using-terraform-329b9dde068f)
 - [Create Amazon EKS Cluster within its VPC using Terraform](https://platformwale.blog/2023/07/15/create-amazon-eks-cluster-within-its-vpc-using-terraform/)
 
+---
+### Additional Topics:
+- What is terraform taint?
+The terraform taint command marks a resource for destruction and recreation during the next terraform apply.
+
+
+
 
 
