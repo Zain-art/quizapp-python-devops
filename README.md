@@ -33,4 +33,4 @@
 ### 1 Steps:
 ```
 https://github.com/Zain-art/quizapp-python-devops.git
-```bash
+```
