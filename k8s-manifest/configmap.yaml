@@ -3,7 +3,11 @@ kind: ConfigMap
 metadata:
   name: quizapp-config
 data:
-  MYSQL_HOST: mysql
-  MYSQL_PORT: "3306"
-  MYSQL_USER: quizuser
-  MYSQL_DATABASE: quizapp
+  FLASK_ENV: "production"
+  SQLALCHEMY_DATABASE_URI:
+    "sqlite:////app/data/db.sqlite"
+
+    # MYSQL_HOST: mysql
+    # MYSQL_PORT: "3306"
+    # MYSQL_USER: quizuser
+    # MYSQL_DATABASE: quizapp
