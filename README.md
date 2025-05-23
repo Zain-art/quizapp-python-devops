@@ -53,7 +53,7 @@ This guide provides a step-by-step approach to building a production-ready AWS E
 - Basic Kubernetes/Docker knowledge
 - ArgoCD installed on your local system or linux/window
   
-### Architecture Overview
+
 
 
 
@@ -842,6 +842,14 @@ kubectl delete -f quiz-deployment.yaml
 kubectl delete -f pv.yaml
 kybectl delete -f pvc.yaml
 kubectl delete -f quiz-service.yaml
+#############################Most Usefull Comands to check kube config currently context and If you have Install EKS CLuster and add in local system using kube/config######################
+
+kubectl config current-context
+kubectl config use-context minikube
+kubectl get nodes
+minikube start
+kubectl config get-contexts
+aws eks --region us-east-1 update-kubeconfig --name zain-eks-cluster
 
 ```
 ---
