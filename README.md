@@ -990,6 +990,19 @@ resource "aws_dynamodb_table" "tf_locks" {
 }
 
 ```
+---
+### After Creating All Resources Create a new repo and push code in repo and run pipelines But If we changes do in Flask-app and Terraform code and CICD.yaml file then It run Pipeline and create new Image with branch name - commitID.
+##### Here is USefull Command related to Git.
+```
+git rev-parse HEAD
+git log -1
+git add filename
+git commit -m "message pass "
+git push origin main
+git checkout -b newbranchname #it would be create new branche and switchout
+
+
+```
 ### Additional Resources
 - [AWS EKS Official Doc Kubernetes Basics]([AWS EKS Official Doc Kubernetes Basics](https://docs.aws.amazon.com/eks/latest/userguide/create-cluster.html)
 - [AWS Kubernetes versions on standard support](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions-standard.html)
