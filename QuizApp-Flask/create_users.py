@@ -16,7 +16,7 @@ def create_user(name: str = "bittu", id: int = None, password: str = "devbittu",
             name=name
         ).first()
         if u is not None:
-            print(f"User with name '{name}' already exists")
+            print(f"User with name '{name}' already exists user")
             return
         else:
             user = User(
