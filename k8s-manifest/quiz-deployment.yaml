@@ -12,11 +12,12 @@ spec:
       labels:
         app: quizapp
     spec:
+      imagePullSecrets:
+        - name: ecr-registry-secret1
+
       containers:
         - name: quizapp
-
           image: 241533146625.dkr.ecr.us-east-1.amazonaws.com/quizapp-flask:main-467b410
-
           ports:
             - containerPort: 5000
           volumeMounts:
@@ -27,6 +28,7 @@ spec:
               value: "production"
             - name: SQLALCHEMY_DATABASE_URI
               value: "sqlite:////app/data/db.sqlite"
+
       volumes:
         - name: sqlite-storage
           persistentVolumeClaim:
