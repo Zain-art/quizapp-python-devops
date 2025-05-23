@@ -2,7 +2,7 @@ from csv import reader
 from quiz_app.models import *
 
 def load_questions(file, verbose: bool = True) -> dict:
-    '''Load questions from csv file and serialize them
+    '''Load questions from csv file and serialize them new
     Argument:
         file - csv_file
     Return:
