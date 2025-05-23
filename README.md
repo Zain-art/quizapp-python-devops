@@ -13,7 +13,7 @@
 9. [Module 6 - Implement IaC - Terraform](#module-6)  
 10. [FAQs](#faqs)  
 11. [Additional Resources](#additional-resources)
-12. [Usefull Topics](#Usefull Topics) 
+12. [Usefull Topics](#Usefull-Topics) 
 
 ### Key Points
 - Flask-based QuizApp is containerized and deployed on AWS EKS.
