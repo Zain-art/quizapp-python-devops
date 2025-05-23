@@ -1031,5 +1031,26 @@ Backend	Purpose
 - Terraform Cloud	       Managed state and team collaboration
 - Azure Blob	            For Azure-based teams
 - Google Cloud Storage	  For GCP deployments
+#### What is the purpose of using data "aws_caller_identity" "current" {} in Terraform?
+- The data "aws_caller_identity" "current" {} block in Terraform is a data source that retrieves details about the AWS identity currently being used to execute the Terraform code.
+- It fetches the identity of the IAM user or role under which Terraform is running. This is often used to dynamically retrieve account-related information.
+- data.aws_caller_identity.current.account_id — The AWS account ID
+- data.aws_caller_identity.current.arn — The ARN (Amazon Resource Name) of the IAM user or role
+- data.aws_caller_identity.current.user_id — The user ID
+
+#### What is the purpose of the terraform block with an s3 backend in this configuration?
+- The terraform block configures remote state storage in an S3 bucket (zain-terraform-backend) under the key vpc/terraform.tfstate in the us-east-1 region. This enables team collaboration and ensures the state file is encrypted at rest.
+#### Why is a dynamodb_table resource created in this configuration?
+- The aws_dynamodb_table resource creates a table (terraform-locks-vpc) for state locking, preventing simultaneous state modifications and avoiding conflicts during terraform apply or plan.
+#### What is the hash_key = "LockID" and what does the attribute block mean?
+- The table uses "LockID" as the primary key, which uniquely identifies each lock entry. The attribute block defines "LockID" as a string (type = "S"), which is required for DynamoDB to store and manage the locks.
+
+- S3 for remote state storage.
+- (Optional) DynamoDB for state locking (recommended for team environments).
+#### What is hostPath?
+- hostPath allows you to use a specific path on the Kubernetes node (host machine) as storage for your pod. It's mainly used for local development, testing, or when you need access to host files.
+- ✅ Useful for single-node clusters (like Minikube)
+- ❌ Not recommended for production or multi-node clusters, as pods may be rescheduled on a different node where the path does not exist
 
 
+  
