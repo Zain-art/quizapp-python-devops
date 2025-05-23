@@ -8,10 +8,14 @@ resource "aws_subnet" "private" {
   availability_zone = var.availability_zones[count.index]
 
   tags = merge(var.default_tags, {
-    Name = "private-sb-quiz-${count.index + 1}"
+    Name = "private-sb-final-${count.index + 1}"
      "kubernetes.io/role/internal-elb"                      = 1
-    "kubernetes.io/cluster/quiz-eks-cluster" = "shared"
+    "kubernetes.io/cluster/final-eks-cluster" = "shared"
   })
+   lifecycle {
+    create_before_destroy = true
+  }
+  
 } 
 
 # resource "aws_route_table" "private" {

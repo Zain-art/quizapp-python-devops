@@ -10,9 +10,11 @@ resource "aws_route_table" "public" {
   }
 
   tags = merge(var.default_tags, {
-    Name = "public-route-table-quiz"
+    Name = "public-route-table-final"
   })
- 
+  lifecycle {
+    create_before_destroy = true
+  }
   
 
   
@@ -37,8 +39,12 @@ resource "aws_route_table" "private" {
   }
 
   tags = merge(var.default_tags, {
-    Name = "private-route-table-quiz-${count.index + 1}"
+    Name = "private-route-table-final-${count.index + 1}"
   })
+   lifecycle {
+    create_before_destroy = true
+  }
+  
 }
 
 resource "aws_route_table_association" "private" {

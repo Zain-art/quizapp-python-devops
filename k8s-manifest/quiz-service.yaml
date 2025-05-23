@@ -3,17 +3,12 @@ kind: Service
 metadata:
   name: quizapp-service
   annotations:
-    service.beta.kubernetes.io/aws-load-balancer-type: "nlb" # Use NLB (Network Load Balancer)
-    # service.beta.kubernetes.io/aws-load-balancer-internal: "false" # Set to "true" if you want internal-only LB
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
     service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
-    # Optional additional annotations:
-    # service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "<your-arn>" # for SSL cert
-    # service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "http"
 spec:
+  type: LoadBalancer
   selector:
     app: quizapp
   ports:
-    - protocol: TCP
-      port: 80
+    - port: 80
       targetPort: 5000
-  type: LoadBalancer

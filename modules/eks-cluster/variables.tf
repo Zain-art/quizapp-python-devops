@@ -21,24 +21,8 @@ variable "private_subnet_ids" {
   description = "List of private subnet IDs"
 }
 
-# variable "eks_role_arn" {
-#   type        = string
-#   description = "ARN of the IAM role for the EKS cluster"
-# }
 
 
 variable "eks_node_security_group_id" {
   type = string
 }
-
-# variable "eks_node_sg_id" {
-#   type        = string
-#   description = "Security group ID for EKS worker nodes"
-#   default     = ""   # optional, can be empty string
-# }
-
-# variable "cluster_oidc_issuer_url" {
-#   type        = string
-#   description = "OIDC issuer URL for the cluster"
-#   default     = ""   # optional, can be empty string
-# }

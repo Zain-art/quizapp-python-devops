@@ -9,8 +9,11 @@ resource "aws_subnet" "public" {
   map_public_ip_on_launch = true
 
   tags = merge(var.default_tags, {
-    Name = "public-sb-quiz-${count.index + 1}"
+    Name = "public-sb-final-${count.index + 1}"
      "kubernetes.io/role/elb"                      = 1
-    "kubernetes.io/cluster/quiz-eks-cluster" = "shared"
+    "kubernetes.io/cluster/final-eks-cluster" = "shared"
   })
+   lifecycle {
+    create_before_destroy = true
+  }
 }

@@ -4,7 +4,7 @@ resource "aws_security_group" "eks_cluster" {
   vpc_id      = var.vpc_id
 
   tags = merge({
-    Name                                      = "quiz-eks-cluster"
+    Name                                      = "final-eks-cluster"
     "kubernetes.io/role/internal-elb"        = "1"
     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
   })
@@ -20,32 +20,7 @@ resource "aws_security_group" "eks_nodes" {
     "kubernetes.io/cluster/${local.cluster_name}" = "owned"
   }
 }
-# resource "aws_security_group" "eks_cluster_sg" {
-#   name        = "${var.cluster_name}-sg-quiz"
-#   description = "EKS cluster security group"
-#   vpc_id      = var.vpc_id
 
-#   # Example inbound rule for worker nodes
-#   ingress {
-#     from_port       = 443
-#     to_port         = 443
-#     protocol        = "tcp"
-#     security_groups = var.eks_node_sg_id != "" ? [var.eks_node_sg_id] : []
-#     description     = "Allow worker nodes to communicate with cluster"
-#   }
-
-#   egress {
-#     from_port   = 0
-#     to_port     = 0
-#     protocol    = "-1"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-#     tags = merge({
-#     Name                                      = "quiz-eks-cluster"
-#     "kubernetes.io/role/internal-elb"        = "1"
-#     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
-#   })
-# }
 # 📡 Allow control plane to communicate with worker nodes
 resource "aws_security_group_rule" "control_plane_to_nodes_https" {
   type                     = "ingress"

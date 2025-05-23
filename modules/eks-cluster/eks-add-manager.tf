@@ -1,7 +1,7 @@
 data "aws_caller_identity" "current" {}
 
 resource "aws_iam_role" "eks_admin" {
-  name = "${local.env}-${local.eks_name}-eks-admin"
+  name = "${local.env}-${local.cluster_name}-eks-admin"
 
   assume_role_policy = <<POLICY
 {
@@ -81,9 +81,3 @@ resource "aws_iam_user_policy_attachment" "manager" {
   policy_arn = aws_iam_policy.eks_assume_admin.arn
 }
 
-# Best practice: use IAM roles due to temporary credentials
-resource "aws_eks_access_entry" "manager" {
-  cluster_name      = var.cluster_name
-  principal_arn     = aws_iam_role.eks_admin.arn
-  kubernetes_groups = ["my-admin"]
-}

@@ -3,9 +3,9 @@
 # ------------------------------
 
 module "vpc" {
-  source   = "./modules/vpc"
+  source = "./modules/vpc"
   # vpc_cidr = var.vpc_cidr_block
-  vpc_tag  = local.my_vpc_name
+  vpc_tag = local.my_vpc_name
 }
 
 module "internet_gateway" {
@@ -20,7 +20,7 @@ module "public_subnets" {
   subnet_cidrs       = local.public_subnet_cidrs
   availability_zones = local.availability_zones
   default_tags       = local.default_tags
-  cluster_name = var.cluster_name
+  cluster_name       = var.cluster_name
 }
 
 module "nat_gateway" {
@@ -37,7 +37,7 @@ module "private_subnets" {
   availability_zones = local.availability_zones
   nat_gateway_ids    = module.nat_gateway.nat_gateway_ids
   default_tags       = local.default_tags
-  cluster_name = var.cluster_name
+  cluster_name       = var.cluster_name
 }
 
 module "route_tables" {
@@ -55,7 +55,7 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "20.36.0"
 
-  cluster_name    = "quiz-eks-cluster"
+  cluster_name    = "final-eks-cluster"
   cluster_version = "1.31"
   vpc_id          = var.vpc_id
   subnet_ids      = var.private_subnet_ids
@@ -63,7 +63,7 @@ module "eks" {
   cluster_endpoint_public_access = true
 
   # iam_role_arn = aws_iam_role.eks_cluster_role.arn
-cluster_addons = {
+  cluster_addons = {
     coredns = {
       most_recent = true
     }
@@ -73,9 +73,9 @@ cluster_addons = {
     vpc-cni = {
       most_recent = true
     }
-     aws-efs-csi-driver = {
-    most_recent = true
-  }
+    aws-efs-csi-driver = {
+      most_recent = true
+    }
   }
   eks_managed_node_groups = {
     spot_nodes = {
@@ -85,24 +85,24 @@ cluster_addons = {
       instance_types = ["t3.medium", "t3.medium"]
       capacity_type  = "SPOT"
       subnets        = var.private_subnet_ids
-    
+
     }
   }
 
- 
+
   access_entries = {
     eks_user_access = {
       principal_arn = "arn:aws:iam::241533146625:user/eks-user-terraform"
       type          = "STANDARD"
-     
-   policy_associations = {
-      admin = {
-        policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
-        access_scope = {
-          type = "cluster"
+
+      policy_associations = {
+        admin = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          access_scope = {
+            type = "cluster"
+          }
         }
       }
-    }
     }
   }
 
@@ -113,11 +113,3 @@ cluster_addons = {
 }
 
 ###############################
-module "efs" {
-  source              = "./modules/eks-cluster"
-  vpc_id              = var.vpc_id
-  private_subnet_ids  = var.private_subnet_ids
-  public_subnet_ids = var.public_subnet_ids
-  eks_node_security_group_id    = "sg-020ab41ad49f3e243"
-  cluster_name = var.cluster_name
-}
