@@ -1,4 +1,4 @@
-##Flask QuizApp on AWS EKS: Terraform Infrastructure & CI/CD Automation with GitHub Actions and Argo CD
+## Flask QuizApp on AWS EKS: Terraform Infrastructure & CI/CD Automation with GitHub Actions and Argo CD
 
 - Document Version: v1.0.0
  ## Table of Contents
