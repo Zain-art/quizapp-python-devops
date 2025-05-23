@@ -1,4 +1,4 @@
-##Flask QuizApp on AWS EKS: Terraform Infrastructure & CI/CD Automation with GitHub Actions and Argo CD
+## Flask QuizApp on AWS EKS: Terraform Infrastructure & CI/CD Automation with GitHub Actions and Argo CD
 
 - Document Version: v1.0.0
  ## Table of Contents
@@ -53,7 +53,7 @@ This guide provides a step-by-step approach to building a production-ready AWS E
 - Basic Kubernetes/Docker knowledge
 - ArgoCD installed on your local system or linux/window
   
-### Architecture Overview
+
 
 
 
@@ -842,6 +842,14 @@ kubectl delete -f quiz-deployment.yaml
 kubectl delete -f pv.yaml
 kybectl delete -f pvc.yaml
 kubectl delete -f quiz-service.yaml
+#############################Most Usefull Comands to check kube config currently context and If you have Install EKS CLuster and add in local system using kube/config######################
+
+kubectl config current-context
+kubectl config use-context minikube
+kubectl get nodes
+minikube start
+kubectl config get-contexts
+aws eks --region us-east-1 update-kubeconfig --name zain-eks-cluster
 
 ```
 ---
@@ -980,6 +988,19 @@ resource "aws_dynamodb_table" "tf_locks" {
     Name = "Terraform Lock Table"
   }
 }
+
+```
+---
+### After Creating All Resources Create a new repo and push code in repo and run pipelines But If we changes do in Flask-app and Terraform code and CICD.yaml file then It run Pipeline and create new Image with branch name - commitID.
+##### Here is USefull Command related to Git.
+```
+git rev-parse HEAD
+git log -1
+git add filename
+git commit -m "message pass "
+git push origin main
+git checkout -b newbranchname #it would be create new branche and switchout
+
 
 ```
 ### Additional Resources
